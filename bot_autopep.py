@@ -1,14 +1,9 @@
-import urllib
 from urllib.parse import urlencode, quote_plus
-from bs4 import BeautifulSoup
 import urllib3
 import time
 import json
-import sys
 from messages import messages, not_valid_method
 import os.path
-
-import subprocess
 
 
 def prettyprint(js):
@@ -17,15 +12,9 @@ def prettyprint(js):
 
 http = urllib3.PoolManager()
 API = 'https://api.telegram.org/bot'
-TOKEN = 'HIDDEN'
+TOKEN = '661270097:AAGqUUdisi3KAnB4gYOYW6-mYFWSE5LHCHQ'
 URL = API + TOKEN
-APPID = '7905917'
-VKAPI = 'https://api.vk.com/method/'
-SENDMESSAGE = 'messages.getConversations'
-TOKEN = '&access_token='
-VKAPIV = '&v=5.131'
 INVALID_UPDATE_ID = -1
-
 HELP_FOR_BREADS = """
 You find a secret help (for users)!!!
 /help - Help
@@ -36,7 +25,6 @@ You find a secret help (for users)!!!
 /sendmessagetime - send message to VK after time (UTC) format: /sendmessage <login> <password> <chatid> <time> <text>
 /time - show current server time in correccct format (UTC)
 """
-
 EMPTY_MESSAGES = """{
   "users":{}, 
   "messages":[]
@@ -141,13 +129,6 @@ def getUsersList(mes, uid):
     for alias, token in mes['users'][uid].items():
         usrlist += alias + ': ' + token + '\n'
     return usrlist
-
-
-def loginVK(chatid):
-    sendMessage(chatid, 'Перейдите по ссылке:\n' +
-                'https://oauth.vk.com/authorize?client_id=' + APPID +
-                '&display=page&redirect_uri=https://oauth.vk.com/blank.html' +
-                '&scope=friends&response_type=token&v=5.52')
 
 
 def getVKMessageList(log, passwd, num=30):
