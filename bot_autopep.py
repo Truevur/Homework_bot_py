@@ -5,14 +5,9 @@ import json
 from messages import messages, not_valid_method
 import os.path
 
-
-def prettyprint(js):
-    print(json.dumps(json.loads(js), indent=2, sort_keys=True))
-
-
 http = urllib3.PoolManager()
 API = 'https://api.telegram.org/bot'
-TOKEN = '661270097:AAGqUUdisi3KAnB4gYOYW6-mYFWSE5LHCHQ'
+TOKEN = '1944178112:AAEN_vu-VeqRtNxf-7MWasMY5sOfYSw_aJU'
 URL = API + TOKEN
 INVALID_UPDATE_ID = -1
 HELP_FOR_BREADS = """
@@ -21,12 +16,12 @@ You find a secret help (for users)!!!
 /adduser - your login and passwd in VK format: /adduser <login> <password>
 /listuser - show list of your VK accounts
 /listchats - get list of chat id in normal order, format: /listchats username (you can set number of chats in second parameter)
-/sendmessage - send message to VK chat format: /sendmessage <login> <password> <chatid> <text>
-/sendmessagetime - send message to VK after time (UTC) format: /sendmessage <login> <password> <chatid> <time> <text>
-/time - show current server time in correccct format (UTC)
+/sendmessage - send message to VK chat format: /sendmessage <login> <chatid> <text>
+/sendmessagetime - send message to VK after time (UTC) format: /sendmessage <login> <chatid> <time> <text>
+/time - show current server time in correct format (UTC)
 """
 EMPTY_MESSAGES = """{
-  "users":{}, 
+  "users":{},
   "messages":[]
 }"""
 
@@ -48,7 +43,7 @@ def getCommand(lid, mes):
                 f.write(str(lid))
                 f.close()
                 parse_message(message, mes)
-        except:
+        except BaseException:
             print('ERROR in message')
             print(message)
     return lid
@@ -65,7 +60,7 @@ def parse_message(message, mes):
             print('help......')
             sendMessage(chatid, 'Only hardcode, no help')
         if command[0] == '/adduser':
-            if(len(command) == 3):
+            if len(command) == 3:
                 mes['users'][uid] = mes['users'].get(uid, {})
                 mes['users'][uid][command[1]] = command[2]
                 sendMessage(chatid, 'Add new log and pass correct')
@@ -74,33 +69,33 @@ def parse_message(message, mes):
         if command[0] == '/listuser':
             sendMessage(chatid, getUsersList(mes, uid))
         if command[0] == '/listchats':
-            if(len(command) == 1):
+            if len(command) == 1:
                 sendMessage(chatid, 'Give user alias from:\n' +
                             getUsersList(mes, uid))
-            elif(len(command) == 2):
-                if(mes['users'][uid].get(command[1]) != None):
-                    sendMessage(chatid, getVKMessageList(command[1],
-                                                         mes['users'][uid][command[1]]))
+            elif len(command) == 2:
+                if mes['users'][uid].get(command[1]) is not None:
+                    sendMessage(chatid, getVKMessageList(
+                        command[1], mes['users'][uid][command[1]]))
                 else:
                     sendMessage(chatid, 'Wrong user alias')
-            elif(len(command) == 3):
-                if(mes['users'][uid].get(command[1]) != None):
-                    sendMessage(chatid, getVKMessageList(command[1],
-                                                         mes['users'][uid][command[1]], int(command[2])))
+            elif len(command) == 3:
+                if mes['users'][uid].get(command[1]) is not None:
+                    sendMessage(chatid, getVKMessageList(
+                        command[1], mes['users'][uid][command[1]], int(command[2])))
                 else:
                     sendMessage(chatid, 'Wrong user alias')
             else:
                 sendMessage(chatid, 'Wrong number of arguments')
         if command[0] == '/sendmessage':
-            if(len(command) <= 3):
+            if len(command) <= 3:
                 sendMessage(chatid, 'Wrong number of arguments')
-            elif(len(command) >= 4):
+            elif len(command) >= 4:
                 sendMessageVK(command[1], mes['users'][uid][command[1]],
                               command[2], ' '.join(command[3:]))
         if command[0] == '/sendmessagetime':
-            if(len(command) <= 4):
+            if len(command) <= 4:
                 sendMessage(chatid, 'Wrong number of arguments')
-            elif(len(command) >= 5):
+            elif len(command) >= 5:
                 try:
                     sendtime = time.strptime(command[3], '%Y.%m.%d-%H:%M:%S')
                     mes['messages'].append({
@@ -114,9 +109,13 @@ def parse_message(message, mes):
                     sendMessage(chatid, 'Message sheduled to ' +
                                 time.strftime('%Y.%m.%d-%H:%M:%S', sendtime))
                 except ValueError:
-                    sendMessage(chatid, 'Incorrect time format, please' +
-                                ' use format like this:\n' +
-                                time.strftime('%Y.%m.%d-%H:%M:%S'))
+                    sendMessage(
+                        chatid,
+                        'Incorrect time format, please' +
+                        ' use format like this:\n' +
+                        time.strftime(
+                            '%Y.%m.%d-%H:%M:%S',
+                            time.gmtime()))
         if command[0] == '/time':
             sendMessage(chatid, time.strftime(
                 '%Y.%m.%d-%H:%M:%S', time.gmtime()))
@@ -126,6 +125,8 @@ def parse_message(message, mes):
 
 def getUsersList(mes, uid):
     usrlist = ''
+    if mes['users'].get(uid, None) is None:
+        return 'You don`t add any users'
     for alias, token in mes['users'][uid].items():
         usrlist += alias + ': ' + token + '\n'
     return usrlist
@@ -168,11 +169,11 @@ def strjson(data):
 
 
 if __name__ == '__main__':
-    if(not os.path.exists('.id.txt')):
+    if not os.path.exists('.id.txt'):
         f = open('.id.txt', 'w')
         f.write('-1')
         f.close()
-    if(not os.path.exists('.messages.json')):
+    if not os.path.exists('.messages.json'):
         f = open('.messages.json', 'w')
         f.write(EMPTY_MESSAGES)
         f.close()
@@ -182,24 +183,23 @@ if __name__ == '__main__':
     fj = open('.messages.json')
     mes = json.load(fj)
     fj.close()
-    print(mes)
     try:
         iter = 0
-        while 1:
+        while True:
             try:
                 lid = getCommand(lid, mes)
             except KeyboardInterrupt:
                 raise KeyboardInterrupt
             newmessages = []
             for i in mes['messages']:
-                if(time.mktime(time.strptime(i['time'], '%Y.%m.%d-%H:%M:%S')) <=
+                if (time.mktime(time.strptime(i['time'], '%Y.%m.%d-%H:%M:%S')) <=
                         time.mktime(time.gmtime())):
                     sendMessageVK(i['log'], i['pass'], i['peerid'], i['text'])
                     sendMessage(i['chatid'], 'Sheduled message was sended')
                 else:
                     newmessages.append(i)
             mes['messages'] = newmessages
-            if(iter >= 3600):
+            if iter >= 3600:
                 fj = open('.messages_rec.json', 'w')
                 json.dump(mes, fj, ensure_ascii=False, indent=4)
                 fj.close()
