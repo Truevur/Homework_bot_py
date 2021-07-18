@@ -11,7 +11,6 @@ TOKEN = '1944178112:AAEN_vu-VeqRtNxf-7MWasMY5sOfYSw_aJU'
 URL = API + TOKEN
 INVALID_UPDATE_ID = -1
 HELP_FOR_BREADS = """
-You find a secret help (for users)!!!
 /help - Help
 /adduser - your login and passwd in VK format: /adduser <login> <password>
 /listuser - show list of your VK accounts
@@ -57,8 +56,7 @@ def parse_message(message, mes):
     if text[0] == '/':
         command = text.split()
         if command[0] == '/help':
-            print('help......')
-            sendMessage(chatid, 'Only hardcode, no help')
+            sendMessage (chatid, HELP_FOR_BREADS)
         if command[0] == '/adduser':
             if len(command) == 3:
                 mes['users'][uid] = mes['users'].get(uid, {})
